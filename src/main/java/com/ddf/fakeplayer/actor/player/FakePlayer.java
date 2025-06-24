@@ -39,6 +39,7 @@ import org.cloudburstmc.protocol.bedrock.packet.*;
 import java.io.IOException;
 import java.util.*;
 
+import static com.mojang.brigadier.arguments.FloatArgumentType.floatArg;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
@@ -52,16 +53,17 @@ public class FakePlayer extends LocalPlayer {
     private final List<FakePlayer.OnPlayerChatListener> onPlayerChatListeners = Collections.synchronizedList(new ArrayList<>());
     private final CommandDispatcher<Player> chatCommandDispatcher = new CommandDispatcher<>();
     private final HashMap<String, CommandNode<Player>> chatCommandNodes = new HashMap<>();
-    private final HashMap<String, String> chatCommandDesc = new HashMap<String, String>(){{
-        put("help",            I18N.get("cmd.desc.help"));
-        put("getVersion",      I18N.get("cmd.desc.getVersion"));
-        put("getPos",          I18N.get("cmd.desc.getPos"));
-        put("getInventory",    I18N.get("cmd.desc.getInventory"));
+    private final HashMap<String, String> chatCommandDesc = new HashMap<String, String>() {{
+        put("help", I18N.get("cmd.desc.help"));
+        put("getVersion", I18N.get("cmd.desc.getVersion"));
+        put("getPos", I18N.get("cmd.desc.getPos"));
+        put("setPos", I18N.get("cmd.desc.setPos"));
+        put("getInventory", I18N.get("cmd.desc.getInventory"));
         put("getSelectedSlot", I18N.get("cmd.desc.getSelectedSlot"));
-        put("selectSlot",      I18N.get("cmd.desc.selectSlot"));
-        put("dropSlot",        I18N.get("cmd.desc.dropSlot"));
-        put("dropAll",         I18N.get("cmd.desc.dropAll"));
-        put("sync",            I18N.get("cmd.desc.sync"));
+        put("selectSlot", I18N.get("cmd.desc.selectSlot"));
+        put("dropSlot", I18N.get("cmd.desc.dropSlot"));
+        put("dropAll", I18N.get("cmd.desc.dropAll"));
+        put("sync", I18N.get("cmd.desc.sync"));
     }};
     private final List<Script> scripts = new ArrayList<>();
     private final Queue<String> scriptsToLoad = new LinkedList<>();
@@ -78,7 +80,8 @@ public class FakePlayer extends LocalPlayer {
             ParseResults<Player> parseResults = chatCommandDispatcher.parse(cmd, level.getPlayerByName(source));
             try {
                 chatCommandDispatcher.execute(parseResults);
-            } catch (CommandSyntaxException ignored) {}
+            } catch (CommandSyntaxException ignored) {
+            }
         });
 
         registerChatCommand("help",
@@ -132,14 +135,27 @@ public class FakePlayer extends LocalPlayer {
                     return Command.SINGLE_SUCCESS;
                 });
         registerChatCommand("getVersion", context -> {
-            this.sendChatCommandMessage("FakePlayer " , VersionInfo.VERSION, "\nGitHub: https://github.com/ddf8196/FakePlayer");
+            this.sendChatCommandMessage("FakePlayer ", VersionInfo.VERSION, "\nGitHub: https://github.com/ddf8196/FakePlayer");
             return Command.SINGLE_SUCCESS;
         });
         registerChatCommand("getPos", context -> {
             Vec3 pos = super.getPos();
-            this.sendChatCommandMessage(ColorFormat.GREEN, "[", super.getDimensionId(), "] ", ColorFormat.AQUA, (int)pos.x, ", ", (int)(pos.y - super.mHeightOffset), ", ", (int)pos.z, ColorFormat.RESET);
+            this.sendChatCommandMessage(ColorFormat.GREEN, "[", super.getDimensionId(), "] ", ColorFormat.AQUA, (int) pos.x, ", ", (int) (pos.y - super.mHeightOffset), ", ", (int) pos.z, ColorFormat.RESET);
             return Command.SINGLE_SUCCESS;
         });
+        registerChatCommand("setPos",
+                Arrays.asList("x", "y", "z"),
+                Arrays.asList(floatArg(),floatArg(),floatArg()),
+                context -> {
+                    Vec3 newPos = new Vec3();
+                    newPos.x = context.getArgument("x", Float.class);
+                    newPos.y = context.getArgument("y", Float.class)+super.mHeightOffset;
+                    newPos.z = context.getArgument("z", Float.class);
+                    super.setPos(newPos);
+                    Vec3 pos = super.getPos();
+                    this.sendChatCommandMessage(ColorFormat.GREEN, "[", super.getDimensionId(), "] ", ColorFormat.AQUA, (int) pos.x, ", ", (int) (pos.y - super.mHeightOffset), ", ", (int) pos.z, ColorFormat.RESET);
+                    return Command.SINGLE_SUCCESS;
+                });
         registerChatCommand("getInventory", context -> {
             boolean empty = true, first = true;
             StringBuilder builder = new StringBuilder(I18N.get("cmd.msg.getInventory.content") + "\n");
@@ -253,7 +269,7 @@ public class FakePlayer extends LocalPlayer {
         if (selectedItem.getItem() == VanillaItems.mTrident) {
             if (!isUsingItem()) {
                 this.getGameMode().baseUseItem(selectedItem);
-            } else if(VanillaItems.mTrident.getMaxUseDuration(getCarriedItem()) - this.mItemInUseDuration > 10) {
+            } else if (VanillaItems.mTrident.getMaxUseDuration(getCarriedItem()) - this.mItemInUseDuration > 10) {
                 this.getGameMode().releaseUsingItem();
             }
         }

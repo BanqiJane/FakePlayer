@@ -30,6 +30,9 @@ import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
 import org.cloudburstmc.protocol.bedrock.data.AuthoritativeMovementMode;
+import org.cloudburstmc.protocol.bedrock.data.auth.AuthPayload;
+import org.cloudburstmc.protocol.bedrock.data.auth.AuthType;
+import org.cloudburstmc.protocol.bedrock.data.auth.CertificateChainPayload;
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition;
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataType;
@@ -73,12 +76,17 @@ public class ClientPacketHandler implements BedrockPacketHandler {
     public void handleConnected(){
         LoginPacket loginPacket = new LoginPacket();
         loginPacket.setProtocolVersion(client.getPacketCodec().getProtocolVersion());
-        loginPacket.getChain().addAll(ChainData.createFullChain(
+        loginPacket.setAuthPayload(new CertificateChainPayload(ChainData.createFullChain(
                 client.getClientKeyPair(),
                 client.getServerKeyPair(),
                 client.createExtraData()
-        ));
-        loginPacket.setExtra(JwtUtil.createJwt(
+        ), AuthType.SELF_SIGNED));
+//        loginPacket.getChain().addAll(ChainData.createFullChain(
+//                client.getClientKeyPair(),
+//                client.getServerKeyPair(),
+//                client.createExtraData()
+//        ));
+        loginPacket.setClientJwt(JwtUtil.createJwt(
                 client.getClientKeyPair(),
                 client.createSkinData().toJsonString()));
         client.sendPacket(loginPacket);
