@@ -96,7 +96,7 @@ public class ClientPacketHandler implements BedrockPacketHandler {
         this.disconnectCallback = disconnectCallback;
     }
 
-    @Override
+//    @Override
     public void onDisconnect(String reason) {
         if (disconnectCallback != null)
             disconnectCallback.accept(reason);
@@ -105,6 +105,12 @@ public class ClientPacketHandler implements BedrockPacketHandler {
 //            logger.logI18N("log.client.disconnected", playerName, disconnectReason.name());
 //            reconnectOrStop(address, port);
 //        }));
+    }
+
+    @Override
+    public void onDisconnect(CharSequence reason) {
+        if (disconnectCallback != null&&reason!=null)
+            disconnectCallback.accept(reason.toString());
     }
 
     @Override

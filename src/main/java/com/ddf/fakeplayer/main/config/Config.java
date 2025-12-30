@@ -7,6 +7,7 @@ import org.cloudburstmc.protocol.bedrock.codec.v582.Bedrock_v582;
 import org.cloudburstmc.protocol.bedrock.codec.v685.Bedrock_v685;
 import org.cloudburstmc.protocol.bedrock.codec.v800.Bedrock_v800;
 import org.cloudburstmc.protocol.bedrock.codec.v818.Bedrock_v818;
+import org.cloudburstmc.protocol.bedrock.codec.v898.Bedrock_v898;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -44,7 +45,7 @@ public class Config {
     private Map<String, CustomSkinData> customSkins = new LinkedHashMap<>();
     private transient KeyPair serverKeyPair;
     private transient Path configPath;
-    private transient BedrockCodec defaultPacketCodec = Bedrock_v818.CODEC;
+    private transient BedrockCodec defaultPacketCodec = Bedrock_v898.CODEC;
     private transient Locale locale;
 
     private static final Object locker;      //多线程锁

@@ -30,6 +30,7 @@ import org.cloudburstmc.protocol.bedrock.codec.v582.Bedrock_v582;
 import org.cloudburstmc.protocol.bedrock.codec.v685.Bedrock_v685;
 import org.cloudburstmc.protocol.bedrock.codec.v800.Bedrock_v800;
 import org.cloudburstmc.protocol.bedrock.codec.v818.Bedrock_v818;
+import org.cloudburstmc.protocol.bedrock.codec.v898.Bedrock_v898;
 import org.cloudburstmc.protocol.bedrock.netty.codec.packet.BedrockPacketCodec;
 import org.cloudburstmc.protocol.bedrock.netty.initializer.BedrockClientInitializer;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
@@ -68,7 +69,7 @@ public class Client implements Closeable {
     private final Map<Integer, ItemStackRequest> itemStackRequests = new ConcurrentHashMap<>();
     private State state;
     private final List<StateChangeListener> stateChangeListeners = Collections.synchronizedList(new ArrayList<>());
-    private BedrockCodec defaultPacketCodec = Bedrock_v818.CODEC;
+    private BedrockCodec defaultPacketCodec = Bedrock_v898.CODEC;
     private SkinType skinType = SkinType.STEVE;
     private int customSkinImageWidth;
     private int customSkinImageHeight;
